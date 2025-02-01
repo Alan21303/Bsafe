@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "521059924112",
+    "project_id": "reclaim-deaddict",
+    "storage_bucket": "reclaim-deaddict.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:521059924112:android:f7cc89264f28cc8d830015",
+        "android_client_info": {
+          "package_name": "com.example.reclaim"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "521059924112-tnboosglvu599hg6caski870e32f86ef.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.reclaim",
+            "certificate_hash": "21162489da689bdfa6f6b11db79575407f29ae6c"
+          }
+        },
+        {
+          "client_id": "521059924112-hsphveu8pkff6grlveikfl07qbu627vk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwbAQ6LseuGO1kQrbYTvHeHeQMT2IoMXc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "521059924112-hsphveu8pkff6grlveikfl07qbu627vk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
