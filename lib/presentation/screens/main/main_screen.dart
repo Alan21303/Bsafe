@@ -6,6 +6,10 @@ import '../profile/profile_screen.dart';
 import '../report/report_screen.dart';
 import '../../../core/constants/app_colors.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../home/emergency_sos_screen.dart';
+import '../home/crime_map_screen.dart';
+import '../report/crime_report_screen.dart';
+import '../resources/safety_resources_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -21,11 +25,11 @@ class _MainScreenState extends State<MainScreen>
   late Animation<double> _rotationAnimation;
   late Animation<double> _scaleAnimation;
 
-  final List<Widget> _screens = const [
-    HomeScreen(),
-    ResourcesScreen(),
-    SupportIntroScreen(),
-    ProfileScreen(),
+  final List<Widget> _screens = [
+    const EmergencySOSScreen(),
+    const CrimeMapScreen(),
+    const CrimeReportScreen(),
+    const SafetyResourcesScreen(),
   ];
 
   @override
@@ -110,62 +114,33 @@ class _MainScreenState extends State<MainScreen>
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        height: 65,
-        padding: EdgeInsets.zero,
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 12,
-        color: Theme.of(context).colorScheme.surface,
-        elevation: 8,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Expanded(
-              child: _buildNavItem(0, Icons.home_outlined, Icons.home, 'Home'),
-            ),
-            Expanded(
-              child: _buildNavItem(1, Icons.library_books_outlined,
-                  Icons.library_books, 'Resources'),
-            ),
-            const Expanded(child: SizedBox(width: 40)),
-            Expanded(
-              child: _buildNavItem(
-                  2, Icons.psychology, Icons.psychology_outlined, 'Support'),
-            ),
-            Expanded(
-              child: _buildNavItem(
-                  3, Icons.person_outline, Icons.person, 'Profile'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavItem(
-      int index, IconData icon, IconData selectedIcon, String label) {
-    final isSelected = _selectedIndex == index;
-    return InkWell(
-      onTap: () => _onItemTapped(index),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            isSelected ? selectedIcon : icon,
-            color: isSelected
-                ? AppColors.crimsonRed
-                : Theme.of(context).colorScheme.onSurface.withOpacity(0.64),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        selectedItemColor: AppColors.navyBlue,
+        unselectedItemColor: Colors.grey,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.emergency),
+            label: 'SOS',
           ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: isSelected
-                  ? AppColors.crimsonRed
-                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.64),
-            ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.map),
+            label: 'Crime Map',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.report_problem),
+            label: 'Report',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.security),
+            label: 'Resources',
           ),
         ],
       ),

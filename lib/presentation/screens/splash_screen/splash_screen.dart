@@ -58,7 +58,7 @@ class _SplashScreenState extends State<SplashScreen>
             ),
             const SizedBox(height: 24),            
             const Text(
-              'Reclaim',
+              'BeeSafe',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 32,
@@ -67,7 +67,7 @@ class _SplashScreenState extends State<SplashScreen>
             ),
             const SizedBox(height: 8),
             const Text(
-              'Reclaim Your Life, One Step at a Time',
+              'Your Personal Safety Companion',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 16,
