@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:geolocator/geolocator.dart';
 import '../../../core/constants/app_colors.dart';
 
 class CrimeMapScreen extends StatefulWidget {
@@ -9,9 +12,28 @@ class CrimeMapScreen extends StatefulWidget {
 }
 
 class _CrimeMapScreenState extends State<CrimeMapScreen> {
+  final MapController _mapController = MapController();
   String _selectedTimeFrame = 'Last 7 Days';
   String _selectedCrimeType = 'All';
   bool _showSafeRoutes = false;
+  LatLng? _currentLocation;
+  final List<Marker> _crimeMarkers = [];
+
+  // Sample crime data (replace with real data)
+  final List<Map<String, dynamic>> _crimeData = [
+    {
+      'type': 'Theft',
+      'location': LatLng(51.5074, -0.1278), // Example location
+      'description': 'Bike theft reported',
+      'timestamp': DateTime.now().subtract(const Duration(hours: 5)),
+    },
+    {
+      'type': 'Suspicious Activity',
+      'location': LatLng(51.5084, -0.1268),
+      'description': 'Suspicious person reported',
+      'timestamp': DateTime.now().subtract(const Duration(hours: 12)),
+    },
+  ];
 
   final List<String> _timeFrames = [
     'Last 24 Hours',
@@ -27,6 +49,137 @@ class _CrimeMapScreenState extends State<CrimeMapScreen> {
     'Vandalism',
     'Suspicious Activity'
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _requestLocationPermission();
+    _initializeCrimeMarkers();
+  }
+
+  Future<void> _requestLocationPermission() async {
+    final permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      final result = await Geolocator.requestPermission();
+      if (result != LocationPermission.denied && 
+          result != LocationPermission.deniedForever) {
+        await _getCurrentLocation();
+      }
+    } else if (permission != LocationPermission.deniedForever) {
+      await _getCurrentLocation();
+    }
+  }
+
+  Future<void> _getCurrentLocation() async {
+    try {
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      setState(() {
+        _currentLocation = LatLng(position.latitude, position.longitude);
+      });
+      
+      // Move map to current location
+      _mapController.move(
+        _currentLocation ?? const LatLng(51.5074, -0.1278),
+        13,
+      );
+    } catch (e) {
+      debugPrint('Error getting location: $e');
+      // Show error message to user
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Unable to get current location. Please check your location settings.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  void _initializeCrimeMarkers() {
+    for (var crime in _crimeData) {
+      _crimeMarkers.add(
+        Marker(
+          point: crime['location'] as LatLng,
+          width: 40,
+          height: 40,
+          child: GestureDetector(
+            onTap: () => _showCrimeDetails(crime),
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.crimsonRed.withOpacity(0.9),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
+              ),
+              child: Icon(
+                _getCrimeIcon(crime['type'] as String),
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+  IconData _getCrimeIcon(String crimeType) {
+    switch (crimeType) {
+      case 'Theft':
+        return Icons.money_off;
+      case 'Assault':
+        return Icons.warning;
+      case 'Vandalism':
+        return Icons.broken_image;
+      case 'Suspicious Activity':
+        return Icons.visibility;
+      default:
+        return Icons.warning;
+    }
+  }
+
+  void _showCrimeDetails(Map<String, dynamic> crime) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              crime['type'] as String,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(crime['description'] as String),
+            const SizedBox(height: 8),
+            Text(
+              'Reported: ${_formatTimestamp(crime['timestamp'] as DateTime)}',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatTimestamp(DateTime timestamp) {
+    final difference = DateTime.now().difference(timestamp);
+    if (difference.inHours < 24) {
+      return '${difference.inHours} hours ago';
+    } else {
+      return '${difference.inDays} days ago';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,12 +201,46 @@ class _CrimeMapScreenState extends State<CrimeMapScreen> {
       ),
       body: Stack(
         children: [
-          // TODO: Implement actual map widget
-          Container(
-            color: Colors.grey[200],
-            child: const Center(
-              child: Text('Map will be implemented here'),
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: _currentLocation ?? const LatLng(51.5074, -0.1278),
+              initialZoom: 13,
+              onMapReady: () {
+                if (_currentLocation != null) {
+                  _mapController.move(_currentLocation!, 13);
+                }
+              },
             ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.example.app',
+              ),
+              MarkerLayer(
+                markers: [
+                  if (_currentLocation != null)
+                    Marker(
+                      point: _currentLocation!,
+                      width: 40,
+                      height: 40,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.navyBlue.withOpacity(0.9),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: const Icon(
+                          Icons.my_location,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ..._crimeMarkers,
+                ],
+              ),
+            ],
           ),
           Positioned(
             top: 16,
@@ -91,9 +278,7 @@ class _CrimeMapScreenState extends State<CrimeMapScreen> {
               children: [
                 FloatingActionButton(
                   heroTag: 'locate',
-                  onPressed: () {
-                    // TODO: Implement current location
-                  },
+                  onPressed: _getCurrentLocation,
                   backgroundColor: AppColors.burgundy,
                   child: const Icon(Icons.my_location),
                 ),

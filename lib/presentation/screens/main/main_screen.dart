@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
-import '../home/home_screen.dart';
-import '../resources/resources_screen.dart';
-import '../support/support_intro_screen.dart';
-import '../profile/profile_screen.dart';
-import '../report/report_screen.dart';
 import '../../../core/constants/app_colors.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../home/emergency_sos_screen.dart';
+import '../home/home_screen.dart';
 import '../home/crime_map_screen.dart';
-import '../report/crime_report_screen.dart';
+import '../profile/profile_screen.dart';
 import '../resources/safety_resources_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -25,11 +20,11 @@ class _MainScreenState extends State<MainScreen>
   late Animation<double> _rotationAnimation;
   late Animation<double> _scaleAnimation;
 
-  final List<Widget> _screens = [
-    const EmergencySOSScreen(),
-    const CrimeMapScreen(),
-    const CrimeReportScreen(),
-    const SafetyResourcesScreen(),
+  final List<Widget> _screens = const [
+    HomeScreen(),
+    ProfileScreen(),
+    CrimeMapScreen(),
+    SafetyResourcesScreen(),
   ];
 
   @override
@@ -57,12 +52,6 @@ class _MainScreenState extends State<MainScreen>
     super.dispose();
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
   void _onFabTapped() async {
     await _animationController.forward();
     if (!mounted) return;
@@ -88,7 +77,10 @@ class _MainScreenState extends State<MainScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_selectedIndex],
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _screens,
+      ),
       floatingActionButton: ScaleTransition(
         scale: _scaleAnimation,
         child: Container(
@@ -114,33 +106,59 @@ class _MainScreenState extends State<MainScreen>
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        selectedItemColor: AppColors.navyBlue,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.emergency),
-            label: 'SOS',
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 8,
+        child: Container(
+          height: 60,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildNavItem(0, Icons.home_outlined, Icons.home, 'Home'),
+                    _buildNavItem(1, Icons.person_outline, Icons.person, 'Profile'),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 64), // Space for FAB
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildNavItem(2, Icons.map_outlined, Icons.map, 'Map'),
+                    _buildNavItem(3, Icons.shield_outlined, Icons.shield, 'Safety'),
+                  ],
+                ),
+              ),
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.map),
-            label: 'Crime Map',
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem(int index, IconData icon, IconData activeIcon, String label) {
+    final isSelected = _selectedIndex == index;
+    return InkWell(
+      onTap: () => setState(() => _selectedIndex = index),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isSelected ? activeIcon : icon,
+            color: isSelected ? AppColors.navyBlue : Colors.grey,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.report_problem),
-            label: 'Report',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.security),
-            label: 'Resources',
+          Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? AppColors.navyBlue : Colors.grey,
+              fontSize: 12,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            ),
           ),
         ],
       ),

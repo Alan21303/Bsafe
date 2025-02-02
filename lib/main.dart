@@ -21,7 +21,31 @@ void main() async {
 
   final prefs = await SharedPreferences.getInstance();
 
-  runApp(MyApp(prefs: prefs));
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => NewsProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider(prefs)),
+        ChangeNotifierProvider(create: (_) => ChatProvider(prefs)),
+        ChangeNotifierProvider(create: (_) => SobrietyProvider(prefs)),
+        ChangeNotifierProvider(create: (_) => SupportGroupsProvider()),
+        ChangeNotifierProvider(create: (_) => AppointmentsProvider()),
+      ],
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, _) {
+          return MaterialApp(
+            navigatorKey: navigatorKey,
+            title: 'Reclaim',
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeProvider.themeMode,
+            home: const SplashScreen(),
+          );
+        },
+      ),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

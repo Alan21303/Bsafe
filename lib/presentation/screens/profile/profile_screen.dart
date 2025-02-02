@@ -1,361 +1,70 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/providers/auth_provider.dart';
-import '../../../core/providers/appointments_provider.dart';
-import '../../../core/models/appointment.dart';
-import '../settings/settings_screen.dart';
-import '../support/professional_consultation_screen.dart';
+import '../../../core/constants/asset_constants.dart';
 import 'package:provider/provider.dart';
-import '../../../core/animations/app_animations.dart';
-import 'package:url_launcher/url_launcher.dart';
+import '../../../core/providers/auth_provider.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
-
-  @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
-
-class _ProfileScreenState extends State<ProfileScreen>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final List<Animation<double>> _animations;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    );
-
-    _animations = List.generate(
-      3,
-      (index) => CurvedAnimation(
-        parent: _controller,
-        curve: Interval(
-          index * 0.2,
-          0.6 + (index * 0.2),
-          curve: Curves.easeOutCubic,
-        ),
-      ),
-    );
-
-    _controller.forward();
-
-    // Initialize the appointments provider
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AppointmentsProvider>().initialize();
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
         slivers: [
           SliverAppBar(
             expandedHeight: 200,
-            floating: false,
             pinned: true,
-            stretch: true,
+            backgroundColor: AppColors.navyBlue,
             flexibleSpace: FlexibleSpaceBar(
-              title: const Text(
-                'Profile',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      AppColors.navyBlue,
-                      AppColors.crimsonRed,
-                    ],
-                  ),
-                ),
-              ),
-              stretchModes: const [
-                StretchMode.zoomBackground,
-                StretchMode.blurBackground,
-              ],
-            ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.logout, color: Colors.white),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Logout'),
-                      content: const Text('Are you sure you want to logout?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('Cancel'),
-                        ),
-                        TextButton(
-                          onPressed: () async {
-                            Navigator.pop(context);
-                            await Provider.of<AuthProvider>(context,
-                                    listen: false)
-                                .signOut();
-                          },
-                          child: Text(
-                            'Logout',
-                            style: TextStyle(
-                              color: Colors.red.shade600,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-          SliverToBoxAdapter(
-            child: SingleChildScrollView(
-              physics: const NeverScrollableScrollPhysics(),
-              child: Column(
+              background: Stack(
+                fit: StackFit.expand,
                 children: [
-                  const SizedBox(height: 24),
-                  AppAnimations.slideUp(
-                    animation: _animations[0],
-                    child: _buildProfileHeader(context),
-                  ),
-                  const SizedBox(height: 32),
-                  AppAnimations.slideUp(
-                    animation: _animations[1],
-                    child: _buildProfileActions(context),
-                  ),
-                  const SizedBox(height: 32),
-                  AppAnimations.slideUp(
-                    animation: _animations[2],
-                    child: _buildSettingsButton(context),
-                  ),
-                  const SizedBox(height: 32),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProfileHeader(BuildContext context) {
-    return Consumer<AuthProvider>(
-      builder: (context, authProvider, _) {
-        final user = authProvider.user;
-        final photoUrl = authProvider.photoUrl;
-
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            children: [
-              Stack(
-                children: [
-                  Hero(
-                    tag: 'profile_photo',
-                    child: TweenAnimationBuilder<double>(
-                      duration: const Duration(milliseconds: 500),
-                      tween: Tween(begin: 0.0, end: 1.0),
-                      builder: (context, value, child) {
-                        return Transform.scale(
-                          scale: 0.5 + (value * 0.5),
-                          child: child,
-                        );
-                      },
-                      child: CircleAvatar(
-                        radius: 60,
-                        backgroundColor: AppColors.navyBlue.withOpacity(0.1),
-                        backgroundImage:
-                            photoUrl != null ? NetworkImage(photoUrl) : null,
-                        child: photoUrl == null
-                            ? Text(
-                                user?.displayName
-                                        ?.substring(0, 1)
-                                        .toUpperCase() ??
-                                    'U',
-                                style: const TextStyle(
-                                  fontSize: 40,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.navyBlue,
-                                ),
-                              )
-                            : null,
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          AppColors.navyBlue,
+                          AppColors.burgundy,
+                        ],
                       ),
                     ),
                   ),
                   Positioned(
-                    bottom: 0,
+                    bottom: 48,
+                    left: 0,
                     right: 0,
-                    child: TweenAnimationBuilder<double>(
-                      duration: const Duration(milliseconds: 500),
-                      tween: Tween(begin: 0.0, end: 1.0),
-                      builder: (context, value, child) {
-                        return Transform.scale(
-                          scale: value,
-                          child: child,
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppColors.crimsonRed,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
-                        ),
-                        child: const Icon(
-                          Icons.edit,
-                          size: 16,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                user?.displayName ?? 'User',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                user?.email ?? '',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey,
-                    ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildProfileActions(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildAppointmentsSection(context),
-          const SizedBox(height: 32),
-          _buildActionButton(
-            context,
-            'Edit Profile',
-            Icons.person_outline,
-            () {},
-          ),
-          const SizedBox(height: 16),
-          _buildActionButton(
-            context,
-            'My Reports',
-            Icons.history,
-            () {},
-          ),
-          const SizedBox(height: 16),
-          _buildActionButton(
-            context,
-            'Privacy Settings',
-            Icons.security,
-            () {},
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAppointmentsSection(BuildContext context) {
-    return Consumer<AppointmentsProvider>(
-      builder: (context, provider, _) {
-        if (provider.isLoading) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(24.0),
-              child: CircularProgressIndicator(),
-            ),
-          );
-        }
-
-        // Debug print appointments when building
-        provider.debugPrintAppointments();
-
-        final upcomingAppointments = provider.upcomingAppointments;
-
-        if (upcomingAppointments.isEmpty) {
-          return Card(
-            elevation: 0,
-            color: Colors.grey.shade50,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Upcoming Appointments',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Center(
                     child: Column(
                       children: [
-                        Icon(
-                          Icons.calendar_today,
-                          size: 48,
-                          color: Colors.grey.shade400,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'No upcoming appointments',
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              AppAnimations.fadeScale(
-                                child: const ProfessionalConsultationScreen(),
-                              ),
-                            ).then((_) {
-                              // Refresh appointments when returning from consultation screen
-                              provider.debugPrintAppointments();
-                              setState(() {});
-                            });
+                        Consumer<AuthProvider>(
+                          builder: (context, authProvider, _) {
+                            final user = authProvider.user;
+                            return Column(
+                              children: [
+                                CircleAvatar(
+                                  radius: 40,
+                                  backgroundColor: Colors.white,
+                                  backgroundImage: user?.photoURL != null
+                                      ? NetworkImage(user!.photoURL!)
+                                      : null,
+                                  child: user?.photoURL == null
+                                      ? const Icon(Icons.person, size: 40)
+                                      : null,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  user?.displayName ?? 'User',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            );
                           },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.navyBlue,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: const Text('Schedule Consultation'),
                         ),
                       ],
                     ),
@@ -363,113 +72,71 @@ class _ProfileScreenState extends State<ProfileScreen>
                 ],
               ),
             ),
-          );
-        }
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSafetyScore(),
+                  const SizedBox(height: 24),
+                  _buildEmergencyContacts(),
+                  const SizedBox(height: 24),
+                  _buildSafetyPreferences(),
+                  const SizedBox(height: 24),
+                  _buildActivitySummary(),
+                  const SizedBox(height: 24),
+                  _buildSettings(),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-        return Column(
+  Widget _buildSafetyScore() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'Upcoming Appointments',
+                  'Safety Score',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                TextButton(
-                  onPressed: () {
-                    // Navigate to appointments history
-                  },
-                  child: const Text('View All'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            ...upcomingAppointments
-                .map((appointment) => _buildAppointmentCard(appointment))
-                .toList(),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildAppointmentCard(Appointment appointment) {
-    return Card(
-      elevation: 0,
-      color: Colors.grey.shade50,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 24,
-                  backgroundImage: NetworkImage(appointment.doctorPhotoUrl),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.navyBlue,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Row(
                     children: [
-                      Text(
-                        appointment.doctorName,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
+                      Icon(
+                        Icons.verified,
+                        color: Colors.white,
+                        size: 16,
                       ),
+                      SizedBox(width: 4),
                       Text(
-                        appointment.doctorSpecialty,
+                        '85/100',
                         style: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontSize: 14,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Icon(
-                            appointment.consultationType == 'video'
-                                ? Icons.videocam
-                                : Icons.person,
-                            size: 16,
-                            color: AppColors.navyBlue,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            appointment.consultationType == 'video'
-                                ? 'Video Call'
-                                : 'In-Person',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppColors.navyBlue,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Icon(
-                            Icons.access_time,
-                            size: 16,
-                            color: Colors.grey.shade600,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${appointment.dateTime.hour}:${appointment.dateTime.minute.toString().padLeft(2, '0')}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                        ],
                       ),
                     ],
                   ),
@@ -477,78 +144,214 @@ class _ProfileScreenState extends State<ProfileScreen>
               ],
             ),
             const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            LinearProgressIndicator(
+              value: 0.85,
+              backgroundColor: Colors.grey[200],
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.burgundy),
+              borderRadius: BorderRadius.circular(10),
+              minHeight: 8,
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
               children: [
-                Text(
-                  '${appointment.dateTime.day}/${appointment.dateTime.month}/${appointment.dateTime.year}',
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontSize: 14,
-                  ),
+                _buildScoreChip('Location Sharing Active', Icons.location_on),
+                _buildScoreChip('Emergency Contacts Set', Icons.contacts),
+                _buildScoreChip('Safety Alerts On', Icons.notifications_active),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScoreChip(String label, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.navyBlue.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 16,
+            color: AppColors.navyBlue,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              color: AppColors.navyBlue,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmergencyContacts() {
+    return Card(
+      child: Column(
+        children: [
+          ListTile(
+            title: const Text(
+              'Emergency Contacts',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            trailing: TextButton(
+              onPressed: () {
+                // TODO: Implement add contact
+              },
+              child: Text(
+                'Add New',
+                style: TextStyle(
+                  color: AppColors.burgundy,
                 ),
-                Row(
-                  children: [
-                    if (appointment.consultationType == 'video' &&
-                        appointment.meetingLink != null)
-                      TextButton.icon(
-                        onPressed: () async {
-                          final url = Uri.parse(appointment.meetingLink!);
-                          if (await canLaunchUrl(url)) {
-                            await launchUrl(url);
-                          }
-                        },
-                        icon: const Icon(Icons.video_call),
-                        label: const Text('Join'),
-                        style: TextButton.styleFrom(
-                          foregroundColor: AppColors.navyBlue,
-                        ),
-                      ),
-                    TextButton.icon(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text('Cancel Appointment'),
-                            content: const Text(
-                                'Are you sure you want to cancel this appointment?'),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text('No'),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  context
-                                      .read<AppointmentsProvider>()
-                                      .cancelAppointment(appointment.id);
-                                  Navigator.pop(context);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                          'Appointment cancelled successfully'),
-                                      backgroundColor: Colors.red,
-                                    ),
-                                  );
-                                },
-                                child: Text(
-                                  'Yes, Cancel',
-                                  style: TextStyle(
-                                    color: Colors.red.shade600,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.cancel_outlined),
-                      label: const Text('Cancel'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.red,
-                      ),
-                    ),
-                  ],
+              ),
+            ),
+          ),
+          _buildContactTile(
+            'John Doe',
+            'Primary Contact',
+            '+1 234-567-8900',
+            Icons.star,
+          ),
+          _buildContactTile(
+            'Jane Smith',
+            'Secondary Contact',
+            '+1 234-567-8901',
+            Icons.people,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContactTile(
+    String name,
+    String relation,
+    String phone,
+    IconData icon,
+  ) {
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundColor: AppColors.burgundy.withOpacity(0.1),
+        child: Icon(
+          icon,
+          color: AppColors.burgundy,
+        ),
+      ),
+      title: Text(name),
+      subtitle: Text(relation),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            phone,
+            style: const TextStyle(
+              color: Colors.grey,
+              fontSize: 12,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Icon(
+            Icons.phone,
+            color: AppColors.burgundy,
+            size: 20,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSafetyPreferences() {
+    return Card(
+      child: Column(
+        children: [
+          const ListTile(
+            title: Text(
+              'Safety Preferences',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          SwitchListTile(
+            title: const Text('Automatic Location Sharing'),
+            subtitle: const Text('Share location during emergency'),
+            value: true,
+            onChanged: (value) {
+              // TODO: Implement location sharing toggle
+            },
+            activeColor: AppColors.burgundy,
+          ),
+          SwitchListTile(
+            title: const Text('Safety Check Reminders'),
+            subtitle: const Text('Periodic check-ins when in high-risk areas'),
+            value: true,
+            onChanged: (value) {
+              // TODO: Implement safety check toggle
+            },
+            activeColor: AppColors.burgundy,
+          ),
+          SwitchListTile(
+            title: const Text('Crime Alerts'),
+            subtitle: const Text('Notifications about nearby incidents'),
+            value: true,
+            onChanged: (value) {
+              // TODO: Implement crime alerts toggle
+            },
+            activeColor: AppColors.burgundy,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActivitySummary() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Activity Summary',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildActivityStat(
+                  'Safe Hours',
+                  '124',
+                  Icons.timer,
+                  AppColors.navyBlue,
+                ),
+                _buildActivityStat(
+                  'Alerts Sent',
+                  '3',
+                  Icons.notification_important,
+                  AppColors.crimsonRed,
+                ),
+                _buildActivityStat(
+                  'Check-ins',
+                  '28',
+                  Icons.check_circle,
+                  AppColors.burgundy,
                 ),
               ],
             ),
@@ -558,86 +361,103 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildActionButton(
-    BuildContext context,
-    String title,
-    IconData icon,
-    VoidCallback onTap,
-  ) {
-    return Hero(
-      tag: title,
-      child: Card(
-        elevation: 0,
-        color: Colors.grey.shade50,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              child: Row(
-                children: [
-                  Icon(icon, color: AppColors.navyBlue),
-                  const SizedBox(width: 16),
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const Spacer(),
-                  Icon(
-                    Icons.chevron_right,
-                    color: Colors.grey.shade400,
-                  ),
-                ],
-              ),
-            ),
+  Widget _buildActivityStat(String label, String value, IconData icon, Color color) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            color: color,
+            size: 24,
           ),
         ),
+        const SizedBox(height: 8),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            color: Colors.grey,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSettings() {
+    return Card(
+      child: Column(
+        children: [
+          _buildSettingsTile(
+            'Account Settings',
+            Icons.person_outline,
+            () {
+              // TODO: Navigate to account settings
+            },
+          ),
+          _buildSettingsTile(
+            'Privacy & Security',
+            Icons.security,
+            () {
+              // TODO: Navigate to privacy settings
+            },
+          ),
+          _buildSettingsTile(
+            'Notification Preferences',
+            Icons.notifications_none,
+            () {
+              // TODO: Navigate to notification settings
+            },
+          ),
+          _buildSettingsTile(
+            'Help & Support',
+            Icons.help_outline,
+            () {
+              // TODO: Navigate to help
+            },
+          ),
+          _buildSettingsTile(
+            'Sign Out',
+            Icons.exit_to_app,
+            () {
+              // TODO: Implement sign out
+            },
+            color: AppColors.crimsonRed,
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildSettingsButton(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Hero(
-        tag: 'settings_button',
-        child: Material(
-          color: Colors.transparent,
-          child: ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                AppAnimations.fadeScale(child: const SettingsScreen()),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.navyBlue,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              minimumSize: const Size(double.infinity, 0),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 0,
-            ),
-            child: const Text(
-              'Settings',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
+  Widget _buildSettingsTile(String title, IconData icon, VoidCallback onTap, {Color? color}) {
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: color ?? AppColors.navyBlue,
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          color: color,
         ),
       ),
+      trailing: const Icon(
+        Icons.chevron_right,
+        size: 20,
+      ),
+      onTap: onTap,
     );
   }
 }

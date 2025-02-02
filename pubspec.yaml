@@ -42,6 +42,8 @@ dependencies:
   geolocator: ^11.0.0
   audioplayers: ^5.2.1
   permission_handler: ^11.3.0
+  flutter_map: ^6.1.0
+  latlong2: ^0.9.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -102,3 +104,10 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/Bwatch_Logo.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/images/Bwatch_Logo.png"
