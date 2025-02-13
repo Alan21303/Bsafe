@@ -57,7 +57,7 @@ class _MainScreenState extends State<MainScreen>
     if (!mounted) return;
 
     final url =
-        'https://metamask.app.link/dapp/https://reclaim-report.vercel.app/app/';
+        'https://metamask.app.link/dapp/https://bsafe-report-azure.vercel.app/app/';
     try {
       await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
     } catch (e) {
