@@ -167,15 +167,24 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 Here are some screenshots of the app:
 
-<img src="img/IMG-20250306-WA0029.jpg" width="300">  
-<img src="img/IMG-20250306-WA0030.jpg" width="300">  
-<img src="img/IMG-20250306-WA0031.jpg" width="300">  
-<img src="img/IMG-20250306-WA0032.jpg" width="300">  
-<img src="img/IMG-20250306-WA0033.jpg" width="300">  
-<img src="img/IMG-20250306-WA0034.jpg" width="300">  
-<img src="img/image.png" width="300">  
-<img src="img/image2.png" width="300">  
-
+<table>
+  <tr>
+    <td><img src="img/IMG-20250306-WA0029.jpg" width="300"></td>
+    <td><img src="img/IMG-20250306-WA0030.jpg" width="300"></td>
+  </tr>
+  <tr>
+    <td><img src="img/IMG-20250306-WA0031.jpg" width="300"></td>
+    <td><img src="img/IMG-20250306-WA0032.jpg" width="300"></td>
+  </tr>
+  <tr>
+    <td><img src="img/IMG-20250306-WA0033.jpg" width="300"></td>
+    <td><img src="img/IMG-20250306-WA0034.jpg" width="300"></td>
+  </tr>
+  <tr>
+    <td><img src="img/image.png" width="300"></td>
+    <td><img src="img/image2.png" width="300"></td>
+  </tr>
+</table>
 
 
 
