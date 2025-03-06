@@ -52,7 +52,7 @@ BSafe is a comprehensive personal safety application designed to provide users w
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/BSafe.git
+git clone https://github.com/Alan21303/Bsafe.git
 ```
 
 2. Install dependencies:
@@ -161,13 +161,24 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Flutter team for the amazing framework
 - Contributors and testers
 
-## Contact
 
-For support or queries, please contact [your-email@domain.com]
 
 ## Screenshots
 
-[Add screenshots of key features here]
+Here are some screenshots of the app:
+
+<img src="img/IMG-20250306-WA0029.jpg" width="300">  
+<img src="img/IMG-20250306-WA0030.jpg" width="300">  
+<img src="img/IMG-20250306-WA0031.jpg" width="300">  
+<img src="img/IMG-20250306-WA0032.jpg" width="300">  
+<img src="img/IMG-20250306-WA0033.jpg" width="300">  
+<img src="img/IMG-20250306-WA0034.jpg" width="300">  
+<img src="img/image.png" width="300">  
+<img src="img/image2.png" width="300">  
+
+
+
+
 
 ---
 
